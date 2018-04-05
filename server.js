@@ -23,6 +23,7 @@ const app = express();
 
 // Logging
 app.use(morgan('common'));
+app.use(express.static('public'))
 
 // CORS
 app.use(function (req, res, next) {
@@ -50,23 +51,19 @@ app.get('/api/protected', jwtAuth, (req, res) => {
   });
 });
 
-app.use('*', (req, res) => {
-  return res.status(404).json({ message: 'Not Found' });
-});
 
 // Referenced by both runServer and closeServer. closeServer
 // assumes runServer has run and set `server` to a server object
 let server;
 
-function runServer(databaseUrl, port = PORT) {
-
+function runServer() {
   return new Promise((resolve, reject) => {
-    mongoose.connect(databaseUrl, err => {
+    mongoose.connect(DATABASE_URL, err => {
       if (err) {
         return reject(err);
       }
-      server = app.listen(port, () => {
-        console.log(`Your app is listening on port ${port}`);
+      server = app.listen(PORT, () => {
+        console.log(`Your app is listening on port ${PORT}`);
         resolve();
       })
         .on('error', err => {
